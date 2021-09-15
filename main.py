@@ -49,3 +49,44 @@ def infos_livre(url = "http://books.toscrape.com/catalogue/the-10-entrepreneur-l
 
     # écriture des données dans un fichier csv 
     inf(infos)
+
+
+def categorie(url_categorie = ""):
+    
+    """ Fonction qui récupère les infos de la page d'une catégorie du site http://books.toscrape.com/ à partir de son url
+    ==> categorie('url de la page catégorie') """
+
+    page_categorie = requests.get(url_categorie)
+    soup = BeautifulSoup(page_categorie.content, "html.parser")
+    page = 1
+    # bouton 'next' en bas de page
+    next_page = soup.find('li', class_ = "next")
+    
+    while next_page:
+        url_categorie = url_categorie.replace('index.html', f'page-')
+
+        # requête http catégorie
+        page_categorie = requests.get(url_categorie + str(page) + ".html")
+        # objet BeautifulSoup 
+        soup = BeautifulSoup(page_categorie.content, "html.parser")
+
+        # liste des urls des livres de la catégorie
+        url_book = soup.find_all('li', class_= 'col-xs-6')
+        liste_urls = []
+        for u in url_book:
+            liste_urls.append(u.find('a')['href'].replace('../../..', 'http://books.toscrape.com/catalogue'))
+            
+        # extraction de plusieurs pages de la catégorie    
+        for a in liste_urls:
+            infos_livre(a)
+        page += 1
+
+    else:
+        # liste des urls des livres de la catégorie
+        url_book = soup.find_all('li', class_= 'col-xs-6')
+        liste_urls = []
+        for u in url_book:
+            liste_urls.append(u.find('a')['href'].replace('../../..', 'http://books.toscrape.com/catalogue'))
+        # extraction de la page de la catégorie
+        for a in liste_urls:
+            infos_livre(a)

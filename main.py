@@ -90,3 +90,24 @@ def categorie(url_categorie = ""):
         # extraction de la page de la catégorie
         for a in liste_urls:
             infos_livre(a)
+
+
+def total(url = "https://books.toscrape.com/index.html"):
+
+    # requête http page produit
+    url_total = requests.get(url)
+    print(url_total.status_code)
+
+    # objet BeautifulSoup
+    soup = BeautifulSoup(url_total.content, "html.parser")
+
+    # récupération de toutes les urls des catégories des livres dans une liste
+    categories = soup.find('ul', class_= 'nav-list').find_all('a')
+    liste_categories = []
+    for l in categories[1:]:
+        liste_categories.append("https://books.toscrape.com/" + l["href"])
+    
+    # récupération des noms des catégories dans une liste
+    noms_categories = []
+    for name in categories[1:]:
+        noms_categories.append(name.text.strip())

@@ -18,8 +18,17 @@ def inf(infos):
         writer = csv.writer(f, delimiter=',')
         writer.writerow(infos)
 
+
+def create_csv(categorie, product_info):
+
+    with open(f"{categorie}.csv", "a", encoding=("utf-8")) as f:
+        writer = csv.writer(f, delimiter=',')
+        writer.writerow(product_info)
+
+
+
 # récupération de la page produit
-def infos_livre(url = "http://books.toscrape.com/catalogue/the-10-entrepreneur-live-your-startup-dream-without-quitting-your-day-job_836/index.html"): 
+def infos_livre(url): 
 
     """ Fonction qui récupère les infos de la page d'un livre du site http://books.toscrape.com/ à partir de son url
     ==> infos_livre('url de la page du livre') """
@@ -48,10 +57,12 @@ def infos_livre(url = "http://books.toscrape.com/catalogue/the-10-entrepreneur-l
     infos = [product_page_url, upc.text, title.text, price_including_tax.text, price_excluding_tax.text, number_available.text, product_description.text, category.text, review_rating.text, image_url.replace('../..', 'http://books.toscrape.com')]
 
     # écriture des données dans un fichier csv 
-    inf(infos)
+    # inf(infos)
+
+    return infos
 
 
-def categorie(url_categorie = ""):
+def get_category_product(url_categorie, nom_categorie):
     
     """ Fonction qui récupère les infos de la page d'une catégorie du site http://books.toscrape.com/ à partir de son url
     ==> categorie('url de la page catégorie') """
@@ -77,24 +88,31 @@ def categorie(url_categorie = ""):
             liste_urls.append(u.find('a')['href'].replace('../../..', 'http://books.toscrape.com/catalogue'))
             
         # extraction de plusieurs pages de la catégorie    
+        # REECRIRE la boucle FOR CI-DESSOUS EN FONCTION
         for a in liste_urls:
-            infos_livre(a)
+            product_info = infos_livre(a)
+            create_csv(nom_categorie, product_info)
         page += 1
 
-    else:
+        print(page)
+        next_page = soup.find('li', class_ = "next")
+
+    else: 
         # liste des urls des livres de la catégorie
         url_book = soup.find_all('li', class_= 'col-xs-6')
         liste_urls = []
         for u in url_book:
             liste_urls.append(u.find('a')['href'].replace('../../..', 'http://books.toscrape.com/catalogue'))
         # extraction de la page de la catégorie
+        # REECRIRE la boucle FOR CI-DESSOUS EN FONCTION
         for a in liste_urls:
-            infos_livre(a)
+            product_info = infos_livre(a)
+            create_csv(nom_categorie, product_info)
 
 
 def total(url = "https://books.toscrape.com/index.html"):
 
-    # requête http page produit
+    # requête http
     url_total = requests.get(url)
     print(url_total.status_code)
 
@@ -104,10 +122,17 @@ def total(url = "https://books.toscrape.com/index.html"):
     # récupération de toutes les urls des catégories des livres dans une liste
     categories = soup.find('ul', class_= 'nav-list').find_all('a')
     liste_categories = []
-    for l in categories[1:]:
-        liste_categories.append("https://books.toscrape.com/" + l["href"])
+    for categorie in categories[1:]:
+        url_categorie = "https://books.toscrape.com/" + categorie["href"]
+        nom_categorie = categorie.text.strip()
+        get_category_product(url_categorie, nom_categorie)
+        # liste_categories.append("https://books.toscrape.com/" + l["href"])
     
     # récupération des noms des catégories dans une liste
     noms_categories = []
     for name in categories[1:]:
         noms_categories.append(name.text.strip())
+
+
+# get_category_product("https://books.toscrape.com/catalogue/category/books/mystery_3/index.html", "Mystery")
+total()

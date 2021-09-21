@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 
+# liste des en-têtes
 en_tetes = ['product_page_url', "upc", "title", "price_including_tax", "price_excluding_tax", "number_available", "product_description", "category", "review_rating", "image_url"]
 
 # écriture de l'en-tête
@@ -19,7 +20,6 @@ def infos_produit(name, infos):
         writer.writerow(infos)
 
 
-# récupération de la page produit
 def product(url):
     
     # requête http page produit
@@ -45,6 +45,8 @@ def product(url):
     # liste des infos du livre
     infos = [product_page_url, upc.text, title.text, price_including_tax.text, price_excluding_tax.text, number_available.text, product_description.text, category.text, review_rating.text, image_url.replace('../..', 'http://books.toscrape.com')]
 
+    # tete(name, en_tetes)
+    # infos_produit(name, infos)
     return infos
 
 
@@ -63,6 +65,8 @@ def categorie(url_categorie):
 
     while next_page:
 
+        
+        next_page = soup.find('li', class_ = "next")
         url_categorie = url_categorie.replace('index.html', 'page-')
 
         # requête http catégorie
@@ -78,9 +82,10 @@ def categorie(url_categorie):
             
         # extraction de plusieurs pages de la catégorie    
         for a in liste_urls:
+            product_infos = product(a)
             infos_produit(name, product(a))
         page += 1
-        next_page = soup.find('li', class_ = "next")
+        # next_page = soup.find('li', class_ = "next")
 
     else:
         # liste des urls des livres de la catégorie
@@ -91,12 +96,13 @@ def categorie(url_categorie):
             
         # extraction de la page de la catégorie
         for a in liste_urls:
+            product_infos = product(a)
             infos_produit(name, product(a))
 
 
 def total(url = "https://books.toscrape.com/index.html"):
 
-    # requête http
+    # requête http page produit
     url_total = requests.get(url)
     print(url_total.status_code)
 
@@ -106,16 +112,13 @@ def total(url = "https://books.toscrape.com/index.html"):
     # récupération de toutes les urls des catégories des livres dans une liste
     categories = soup.find('ul', class_= 'nav-list').find_all('a')
     liste_categories = []
-    for categorie in categories[1:]:
-        url_categorie = "https://books.toscrape.com/" + categorie["href"]
-        nom_categorie = categorie.text.strip()
-        get_category_product(url_categorie, nom_categorie)
-        # liste_categories.append("https://books.toscrape.com/" + l["href"])
+    for l in categories[1:]:
+        liste_categories.append("https://books.toscrape.com/" + l["href"])
     
-    # récupération des noms des catégories dans une liste
-    noms_categories = []
-    for name in categories[1:]:
-        noms_categories.append(name.text.strip())
+
+    for url_cat in (liste_categories):
+        categorie(url_cat)
 
 
-get_category_product("https://books.toscrape.com/catalogue/category/books/mystery_3/index.html", "Mystery")
+# categorie("http://books.toscrape.com/catalogue/category/books/sequential-art_5/index.html")
+total()

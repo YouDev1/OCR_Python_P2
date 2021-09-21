@@ -2,28 +2,21 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 
-# liste des en-têtes
 en_tetes = ['product_page_url', "upc", "title", "price_including_tax", "price_excluding_tax", "number_available", "product_description", "category", "review_rating", "image_url"]
 
 # écriture de l'en-tête
+def tete(name, en_tetes):
 
-with open("TEST.csv", "w", encoding=("utf-8")) as f:
-    writer = csv.writer(f, delimiter=',')
-    writer.writerow(en_tetes)
+    with open(f"{name}.csv", "w", encoding=("utf-8")) as f:
+        writer = csv.writer(f, delimiter=',')
+        writer.writerow(en_tetes)
 
+# écriture des infos produit
+def infos_produit(name, infos):
 
-# écriture des informations
-def inf(infos):     
-    with open("TEST.csv", 'a', encoding=("utf-8")) as f:
+    with open(f"{name}.csv", "a", encoding=("utf-8")) as f:
         writer = csv.writer(f, delimiter=',')
         writer.writerow(infos)
-
-
-def create_csv(categorie, product_info):
-
-    with open(f"{categorie}.csv", "a", encoding=("utf-8")) as f:
-        writer = csv.writer(f, delimiter=',')
-        writer.writerow(product_info)
 
 
 
@@ -134,5 +127,4 @@ def total(url = "https://books.toscrape.com/index.html"):
         noms_categories.append(name.text.strip())
 
 
-# get_category_product("https://books.toscrape.com/catalogue/category/books/mystery_3/index.html", "Mystery")
-total()
+get_category_product("https://books.toscrape.com/catalogue/category/books/mystery_3/index.html", "Mystery")

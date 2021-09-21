@@ -19,7 +19,6 @@ def infos_produit(name, infos):
         writer.writerow(infos)
 
 
-
 # récupération de la page produit
 def product(url):
     
@@ -49,19 +48,22 @@ def product(url):
     return infos
 
 
-def get_category_product(url_categorie, nom_categorie):
-    
-    """ Fonction qui récupère les infos de la page d'une catégorie du site http://books.toscrape.com/ à partir de son url
-    ==> categorie('url de la page catégorie') """
-
+def categorie(url_categorie):
+  
     page_categorie = requests.get(url_categorie)
     soup = BeautifulSoup(page_categorie.content, "html.parser")
     page = 1
+
     # bouton 'next' en bas de page
     next_page = soup.find('li', class_ = "next")
     
+    name = soup.find('h1').text
+    
+    tete(name, en_tetes)
+
     while next_page:
-        url_categorie = url_categorie.replace('index.html', f'page-')
+
+        url_categorie = url_categorie.replace('index.html', 'page-')
 
         # requête http catégorie
         page_categorie = requests.get(url_categorie + str(page) + ".html")
@@ -75,26 +77,21 @@ def get_category_product(url_categorie, nom_categorie):
             liste_urls.append(u.find('a')['href'].replace('../../..', 'http://books.toscrape.com/catalogue'))
             
         # extraction de plusieurs pages de la catégorie    
-        # REECRIRE la boucle FOR CI-DESSOUS EN FONCTION
         for a in liste_urls:
-            product_info = infos_livre(a)
-            create_csv(nom_categorie, product_info)
+            infos_produit(name, product(a))
         page += 1
-
-        print(page)
         next_page = soup.find('li', class_ = "next")
 
-    else: 
+    else:
         # liste des urls des livres de la catégorie
         url_book = soup.find_all('li', class_= 'col-xs-6')
         liste_urls = []
         for u in url_book:
             liste_urls.append(u.find('a')['href'].replace('../../..', 'http://books.toscrape.com/catalogue'))
+            
         # extraction de la page de la catégorie
-        # REECRIRE la boucle FOR CI-DESSOUS EN FONCTION
         for a in liste_urls:
-            product_info = infos_livre(a)
-            create_csv(nom_categorie, product_info)
+            infos_produit(name, product(a))
 
 
 def total(url = "https://books.toscrape.com/index.html"):

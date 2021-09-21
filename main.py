@@ -21,16 +21,13 @@ def infos_produit(name, infos):
 
 
 # récupération de la page produit
-def infos_livre(url): 
-
-    """ Fonction qui récupère les infos de la page d'un livre du site http://books.toscrape.com/ à partir de son url
-    ==> infos_livre('url de la page du livre') """
-
+def product(url):
+    
     # requête http page produit
     page_livre = requests.get(url)
-
     # objet BeautifulSoup
     soup = BeautifulSoup(page_livre.content, "html.parser")
+    name = soup.find('li', class_='active').text
 
     table = soup.find('table').find_all('td')
 
@@ -48,9 +45,6 @@ def infos_livre(url):
 
     # liste des infos du livre
     infos = [product_page_url, upc.text, title.text, price_including_tax.text, price_excluding_tax.text, number_available.text, product_description.text, category.text, review_rating.text, image_url.replace('../..', 'http://books.toscrape.com')]
-
-    # écriture des données dans un fichier csv 
-    # inf(infos)
 
     return infos
 

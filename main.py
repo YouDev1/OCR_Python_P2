@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 
+
 # liste des en-têtes
 en_tetes = ['product_page_url', "upc", "title", "price_including_tax", "price_excluding_tax", "number_available", "product_description", "category", "review_rating", "image_url"]
 
@@ -116,9 +117,5 @@ def total(url = "https://books.toscrape.com/index.html"):
         liste_categories.append("https://books.toscrape.com/" + l["href"])
     
 
-    for url_cat in (liste_categories):
-        categorie(url_cat)
-
-
-# categorie("http://books.toscrape.com/catalogue/category/books/sequential-art_5/index.html")
-total()
+    for url in (liste_categories):
+        categorie(url)
